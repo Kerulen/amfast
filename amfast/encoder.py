@@ -15,12 +15,12 @@ class Encoder(object):
      * include_private - bool - True to encode attributes starting with '_'.
      * class_def_mapper - amfast.class_def.ClassDefMapper - The object that retrieves ClassDef objects.
      * buffer - file-like-object - Output buffer. Set to None to output to a string.
-
+     * dict_as_array - bool - save dicts as arrays
     """ 
 
     def __init__(self, amf3=False, use_collections=False, use_proxies=False,
         use_references=True, use_legacy_xml=False, include_private=False,
-        class_def_mapper=None, buffer=None):
+        class_def_mapper=None, buffer=None, dict_as_array=False):
 
         self.amf3 = amf3
         self.use_collections = use_collections
@@ -28,6 +28,7 @@ class Encoder(object):
         self.use_references = use_references
         self.use_legacy_xml = use_legacy_xml
         self.include_private = include_private
+        self.dict_as_array = dict_as_array
 
         if class_def_mapper is None:
             class_def_mapper = ClassDefMapper()
@@ -46,7 +47,8 @@ class Encoder(object):
             'use_references': self.use_references,
             'use_legacy_xml': self.use_legacy_xml,
             'include_private': self.include_private,
-            'class_def_mapper': self.class_def_mapper
+            'class_def_mapper': self.class_def_mapper,
+            'dict_as_array': self.dict_as_array
         }
  
         if self.buffer is not None:

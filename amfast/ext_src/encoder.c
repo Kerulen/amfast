@@ -569,9 +569,9 @@ static int write_dict_AMF3(EncoderObj *context, PyObject *value)
     if (context->use_proxies == Py_True) {
         return write_proxy_AMF3(context, value);
     }
-
-    if (!Encoder_writeByte(context, OBJECT_TYPE))
-       return 0;
+    
+    if (!Encoder_writeByte(context, context->dict_as_array ? ARRAY_TYPE : OBJECT_TYPE))
+        return 0;
 
     return serialize_dict_AMF3(context, value);
 }
@@ -591,8 +591,12 @@ static int serialize_dict_AMF3(EncoderObj *context, PyObject *value)
 /* Encode a dict. */
 static int encode_dict_AMF3(EncoderObj *context, PyObject *value)
 {
-    if (!serialize_class_def_AMF3(context, Py_None)) {
-        return 0;
+    if (context->dict_as_array) {
+	if (!Encoder_writeByte(context, EMPTY_STRING_TYPE))
+	    return 0;
+    } else {
+	if (!serialize_class_def_AMF3(context, Py_None))
+    	    return 0;
     }
 
     return encode_dynamic_dict_AMF3(context, value);

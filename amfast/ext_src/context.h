@@ -199,6 +199,7 @@ typedef struct {
     PyObject *class_def_name; // Name of method to get class def
     PyObject *write_name; // PyString name of method to write to buffer
     PyObject *extern_name; // PyString name of method to write externalizable objects
+    PyObject *dict_as_array; //True to encode dicts as associative arrays
     int int_buf; // 1 if we're using an amfast.buffer.Buffer object as the output, 0 if not
 } EncoderObj;
 

@@ -835,6 +835,7 @@ static PyObject* Encoder_new(PyTypeObject *type, PyObject *args, PyObject *kwarg
         self->class_def_name = NULL;
         self->write_name = NULL;
         self->extern_name = NULL;
+        self->dict_as_array = NULL;
         self->int_buf = 0;
     }
 
@@ -882,10 +883,10 @@ static int Encoder_init(PyObject *self_raw, PyObject *args, PyObject *kwargs)
     EncoderObj *self = (EncoderObj*)self_raw;
 
     static char *kwlist[] = {"buffer", "class_def_mapper", "amf3", "use_collections",
-        "use_proxies", "use_references", "use_legacy_xml", "include_private", NULL};
-    if (!PyArg_ParseTupleAndKeywords(args, kwargs, "|OOOOOOOO", kwlist,
+        "use_proxies", "use_references", "use_legacy_xml", "include_private", "dict_as_array", NULL};
+    if (!PyArg_ParseTupleAndKeywords(args, kwargs, "|OOOOOOOOO", kwlist,
         &self->buf, &self->class_mapper, &self->amf3, &self->use_collections,
-        &self->use_proxies, &self->use_refs, &self->use_legacy_xml, &self->include_private))
+        &self->use_proxies, &self->use_refs, &self->use_legacy_xml, &self->include_private, &self->dict_as_array))
         return -1;
 
     if (self->buf == NULL) {
@@ -970,6 +971,10 @@ static int Encoder_init(PyObject *self_raw, PyObject *args, PyObject *kwargs)
         if (self->extern_name == NULL)
             return -1;
     }
+    
+    if (self->dict_as_array == NULL)
+	self->dict_as_array = Py_False;
+    Py_INCREF(self->dict_as_array);
 
     return 0;
 }
@@ -993,6 +998,7 @@ static void Encoder_dealloc(EncoderObj *self)
     Py_XDECREF(self->class_def_name);
     Py_XDECREF(self->write_name);
     Py_XDECREF(self->extern_name);
+    Py_XDECREF(self->dict_as_array);
     self->ob_type->tp_free((PyObject*)self);
 }
 
@@ -1067,6 +1073,8 @@ static PyObject* Encoder_copy(EncoderObj *self, int amf3, int new_buf)
         new_encoder->amf3 = Py_False;
     }
     Py_XINCREF(new_encoder->amf3);
+    new_encoder->dict_as_array = self->dict_as_array;
+    Py_XINCREF(new_encoder->dict_as_array);
 
     // Reset indexes
     if (Encoder_initRef(new_encoder) == -1) {
